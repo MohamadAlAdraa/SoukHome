@@ -1,0 +1,79 @@
+CREATE TABLE [dbo].[Admin] (
+    [adminId]   INT           IDENTITY (1, 1) NOT NULL,
+    [email]     VARCHAR (200) NOT NULL,
+    [firstName] VARCHAR (MAX) NOT NULL,
+    [lastName]  VARCHAR (MAX) NOT NULL,
+    [password]  VARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([adminId] ASC, [email] ASC)
+);
+
+CREATE TABLE [dbo].[Store] (
+    [storeId]       INT           IDENTITY (1, 1) NOT NULL,
+    [email]         VARCHAR (200) NOT NULL,
+    [adminId]       INT           NOT NULL,
+    [storeName]     VARCHAR (MAX) NOT NULL,
+    [storeOwner]    VARCHAR (MAX) NOT NULL,
+    [storeLocation] VARCHAR (MAX) NOT NULL,
+    [storeLogo]     VARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([storeId] ASC),
+    CONSTRAINT [FK_Store_ToAdmin] FOREIGN KEY ([adminId], [email]) REFERENCES [dbo].[Admin] ([adminId], [email]) ON DELETE CASCADE
+);
+
+CREATE TABLE [dbo].[Product] (
+    [productId]          INT           IDENTITY (1, 1) NOT NULL,
+    [storeId]            INT           NOT NULL,
+    [productName]        VARCHAR (MAX) NOT NULL,
+    [productImg]         VARCHAR (MAX) NOT NULL,
+    [productPrice]       VARCHAR (MAX) NOT NULL,
+    [productDescription] VARCHAR (MAX) NOT NULL,
+    [isBestSeller]       BIT           DEFAULT ((0)) NOT NULL,
+    [inOffer]            BIT           DEFAULT ((0)) NOT NULL,
+    PRIMARY KEY CLUSTERED ([productId] ASC),
+    CONSTRAINT [FK_Product_ToStore] FOREIGN KEY ([storeId]) REFERENCES [dbo].[Store] ([storeId]) ON DELETE CASCADE
+);
+
+CREATE TABLE [dbo].[Offer] (
+    [offerId]         INT           IDENTITY (1, 1) NOT NULL,
+    [productId]       INT           NOT NULL,
+    [newPrice]        INT           NOT NULL,
+    [offerPercentage] INT           NOT NULL,
+    [expirationDate]  VARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([offerId] ASC, [productId] ASC),
+    CONSTRAINT [FK_Offer_ToProduct] FOREIGN KEY ([productId]) REFERENCES [dbo].[Product] ([productId]) ON DELETE CASCADE
+);
+
+CREATE TABLE [dbo].[Customer] (
+    [customerId]  INT           IDENTITY (1, 1) NOT NULL,
+    [email]       VARCHAR (200) NOT NULL,
+    [firstName]   VARCHAR (MAX) NOT NULL,
+    [lastName]    VARCHAR (MAX) NOT NULL,
+    [password]    VARCHAR (MAX) NOT NULL,
+    [phoneNumber] VARCHAR (MAX) NOT NULL,
+    [address]     VARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([customerId] ASC, [email] ASC)
+);
+
+CREATE TABLE [dbo].[Basket] (
+    [basketId]              INT           NOT NULL,
+    [customerBasketEmailId] VARCHAR (200) NOT NULL,
+    PRIMARY KEY CLUSTERED ([basketId] ASC, [customerBasketEmailId] ASC),
+    CONSTRAINT [FK_Basket_ToCustomer] FOREIGN KEY ([basketId], [customerBasketEmailId]) REFERENCES [dbo].[Customer] ([customerId], [email]) ON DELETE CASCADE
+);
+
+CREATE TABLE [dbo].[BasketOrder] (
+    [orderId]               INT           IDENTITY (1, 1) NOT NULL,
+    [basketId]              INT           NOT NULL,
+    [customerBasketEmailId] VARCHAR (200) NOT NULL,
+    [productId]             INT           NOT NULL,
+    [orderState]            VARCHAR (MAX) NOT NULL,
+    [date]                  VARCHAR (MAX) NOT NULL,
+    PRIMARY KEY CLUSTERED ([orderId] ASC),
+    CONSTRAINT [FK_Basket_ToProduct] FOREIGN KEY ([productId]) REFERENCES [dbo].[Product] ([productId]) ON DELETE CASCADE,
+    CONSTRAINT [FK_Basket_ToBasket] FOREIGN KEY ([basketId], [customerBasketEmailId]) REFERENCES [dbo].[Basket] ([basketId], [customerBasketEmailId]) ON DELETE CASCADE
+);
+
+
+
+
+
+
